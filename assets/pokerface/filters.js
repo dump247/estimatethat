@@ -1,5 +1,6 @@
 define(['angular'], function (angular) {
     'use strict';
-    angular.module('pokerface.filters', []);
+
+    return angular.module('pokerface.filters', []);
 });
 

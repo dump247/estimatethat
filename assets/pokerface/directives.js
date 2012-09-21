@@ -1,5 +1,6 @@
 define(['angular'], function (angular) {
     'use strict';
-    angular.module('pokerface.directives', []);
+
+    return angular.module('pokerface.directives', []);
 });
 
