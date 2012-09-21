@@ -1,0 +1,17 @@
+body {
+    padding: 0 20px;
+}
+
+.new-room-container {
+    max-width: 705px;
+}
+
+button.new-room .title {
+    font-size: 1.6em;
+}
+
+button.new-room .values {
+    font-size: 0.8em;
+    padding-left: 10%;
+    padding-right: 10%;
+}

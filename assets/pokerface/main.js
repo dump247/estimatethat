@@ -1,5 +1,5 @@
 require.config({
-    deps: ['css!bootstrap/bootstrap'],
+    deps: ['css!bootstrap/bootstrap', 'css!pokerface/app'],
 
     shim: {
         'angular': {
