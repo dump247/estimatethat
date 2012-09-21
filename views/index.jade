@@ -1,5 +1,5 @@
 !!! 5
-html(ng-app='pokerface')
+html
     head
         title PokerFace: Planning Poker
         script
@@ -7,4 +7,5 @@ html(ng-app='pokerface')
                 baseUrl: '#{assetsUrl}'
             };
         script(src=assetsUrl+'/require.js', data-main='pokerface/main')
-    body
+        link(rel='stylesheet', href=assetsUrl+'/bootstrap/bootstrap.css')
+    body(ng-view)

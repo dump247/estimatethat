@@ -1,5 +1,9 @@
-define(['angular'], function (angular) {
+define([
+    'angular',
+    'pokerface/newRoomCtrl'
+], function (angular, NewRoomCtrl) {
     'use strict';
-    angular.module('pokerface.controllers', []);
+    return angular.module('pokerface.controllers', []).
+        controller('newRoom', NewRoomCtrl);
 });
 

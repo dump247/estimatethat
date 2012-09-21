@@ -1,4 +1,6 @@
 require.config({
+    deps: ['css!bootstrap/bootstrap'],
+
     shim: {
         'angular': {
             exports: 'angular'
@@ -6,19 +8,14 @@ require.config({
     }
 });
 
-define([
+require([
+    'require/domReady!',
     'angular',
 
-    // No export
-    'pokerface/filters',
-    'pokerface/services',
-    'pokerface/directives',
-    'pokerface/controllers'
-], function (angular) {
+    // Ignore export
+    'pokerface/app'
+], function (document, angular) {
     'use strict';
-
-    angular.module('pokerface', ['pokerface.filters', 'pokerface.services', 'pokerface.directives', 'pokerface.controllers']).
-        config(function ($routeProvider) {
-        });
+    angular.bootstrap(document, ['pokerface']);
 });
 
