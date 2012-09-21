@@ -1,0 +1,10 @@
+!!! 5
+html(ng-app='pokerface')
+    head
+        title PokerFace: Planning Poker
+        script
+            var require = {
+                baseUrl: '#{assetsUrl}'
+            };
+        script(src=assetsUrl+'/require.js', data-main='pokerface/main')
+    body

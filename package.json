@@ -1,0 +1,15 @@
+{
+    "name": "poker-face",
+    "description": "Scrum planning poker service",
+    "version": "0.0.1",
+
+    "engine": {
+        "node": "0.8.X"
+    },
+
+    "dependencies": {
+        "express": "3.X",
+        "jade": "0.27.X"
+    }
+}
+
