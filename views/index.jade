@@ -4,8 +4,26 @@ html
         title PokerFace: Planning Poker
         script
             var require = {
-                baseUrl: '#{assetsUrl}'
+                baseUrl: '#{assetsUrl}',
+                config: {
+                    'pokerface/app': {
+                        root: '#{appRoot}'
+                    },
+                    'pokerface/service': {
+                        url: '#{apiUrl}'
+                    }
+                }
             };
+
+        script(type='text/x-handlebars-template', id='new-room-tmpl').
+            <h1>Create a Room</h1>
+            <div class="new-room-container">
+                <button id="modified-fibonacci" class="btn btn-large btn-block new-room"><div class="title">Modified Fibonacci</div><div class="values">0, 1/2, 1, 2, 3, 5, 8, 13, 20, 40, 100</div></button>
+                <button id="shirt-sizes" class="btn btn-large btn-block new-room"><div class="title">Shirt Sizes</div><div class="values">XS, S, M, L, XL</div></button>
+                <button id="sequence" class="btn btn-large btn-block new-room"><div class="title">Sequence</div><div class="values">0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10</div></button>
+            </div>
+
         script(src=assetsUrl+'/require.js', data-main='pokerface/main')
         link(rel='stylesheet', href=assetsUrl+'/bootstrap/bootstrap.css')
-    body(ng-view)
+        link(rel='stylesheet', href=assetsUrl+'/pokerface/app.css')
+    body

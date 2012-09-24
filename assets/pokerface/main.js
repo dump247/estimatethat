@@ -1,21 +1,29 @@
 require.config({
-    deps: ['css!bootstrap/bootstrap', 'css!pokerface/app'],
-
     shim: {
-        'angular': {
-            exports: 'angular'
+        'underscore': {
+            exports: '_'
+        },
+
+        'zepto': {
+            exports: '$'
+        },
+
+        'backbone': {
+            deps: ['underscore', 'zepto'],
+            exports: 'Backbone'
+        },
+
+        'handlebars': {
+            exports: 'Handlebars'
         }
     }
 });
 
 require([
     'require/domReady!',
-    'angular',
-
-    // Ignore export
     'pokerface/app'
-], function (document, angular) {
+], function (document, Pokerface) {
     'use strict';
-    angular.bootstrap(document, ['pokerface']);
+    Pokerface.start(document);
 });
 

@@ -18,7 +18,9 @@ function redirect (url) {
 
 function index (request, response) {
     response.render('index', {
-        assetsUrl: app.get('assetsUrl')
+        assetsUrl: app.get('assetsUrl'),
+        apiUrl: app.get('apiUrl'),
+        appRoot: app.get('appRoot')
     });
 }
 
@@ -27,6 +29,7 @@ if (app.get('env') === 'production') {
 } else {
     app.set('assetsUrl', '/assets');
     app.set('appRoot', '/app');
+    app.set('apiUrl', '/api');
 
     app.get('/', redirect('/app'));
     app.get('/app', index);

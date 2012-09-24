@@ -1,29 +1,66 @@
 define([
-    'angular',
+    'module',
+    'underscore',
+    'backbone',
+    'zepto',
+    'handlebars',
 
-    'require/text!pokerface/newRoom.hbs',
-
-    // No export
-    'pokerface/filters',
-    'pokerface/services',
-    'pokerface/directives',
-    'pokerface/controllers'
-], function (angular, NewRoomTmpl) {
+    'pokerface/service'
+], function (module, _, Backbone, $, Handlebars, Pokerface) {
     'use strict';
 
-    var app = angular.module('pokerface', [
-        'pokerface.filters',
-        'pokerface.services',
-        'pokerface.directives',
-        'pokerface.controllers'
-    ]);
+    var appRoot = module.config().root;
 
-    app.config(function ($routeProvider) {
-        $routeProvider.
-            when('/', { controller: 'newRoom', template: NewRoomTmpl }).
-            otherwise({ redirectTo: '/' });
+    var NewRoomView = Backbone.View.extend({
+        events: {
+            'click button.new-room': 'newRoom'
+        },
+
+        render: function () {
+            var template = Handlebars.compile($('#new-room-tmpl').html());
+            this.$el.html(template());
+        },
+
+        newRoom: function (evt) {
+            Pokerface.create(evt.currentTarget.id, function (err, room) {
+                console.log(err, room);
+            });
+        }
     });
 
-    return app;
+    var PokerfaceRouter = Backbone.Router.extend({
+        routes: {
+            '':           'index',
+            ':room_id':   'room'
+        },
+
+        index: function () {
+            new NewRoomView({
+                el: 'body'
+            }).render();
+            console.log('index');
+        },
+
+        room: function (room_id) {
+            console.log('room ' + room_id);
+        }
+    });
+
+    return {
+        running: false,
+        router: null,
+
+        start: function () {
+            if (! this.running) {
+                this.running = true;
+                this.router = new PokerfaceRouter();
+
+                Backbone.history.start({
+                    pushState: true,
+                    root: appRoot
+                });
+            }
+        }
+    };
 });
 
