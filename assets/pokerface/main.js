@@ -1,4 +1,10 @@
 require.config({
+    map: {
+        '*': {
+            'socket.io': '/socket.io/socket.io.js'
+        }
+    },
+
     shim: {
         'underscore': {
             exports: '_'
@@ -15,6 +21,10 @@ require.config({
 
         'handlebars': {
             exports: 'Handlebars'
+        },
+
+        '/socket.io/socket.io.js': {
+            exports: 'io'
         }
     }
 });
