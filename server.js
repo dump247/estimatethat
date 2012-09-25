@@ -3,8 +3,11 @@
 var fs = require('fs');
 var express = require('express');
 var crypto = require('crypto');
+var url = require('url');
+var _ = require('underscore');
 
 var app = express();
+var serverPort = 3000;
 
 app.set('view engine', 'jade');
 app.set('views', __dirname + '/views');
@@ -14,6 +17,15 @@ app.use(app.router);
 
 // TODO replace this with a real data store
 var rooms = {};
+
+function createUrl (request) {
+    return url.format({
+        protocol: request.protocol,
+        hostname: request.host,
+        port: serverPort,
+        pathname: _.toArray(arguments).slice(1).join('/').replace('//', '/')
+    });
+}
 
 function redirect (url) {
     return function (request, response) {
@@ -69,7 +81,7 @@ function create (request, response) {
             type: roomType,
             created: created,
             access: created,
-            url: request.app.get('appRoot') + room_id
+            url: createUrl(request, request.app.get('appRoot'), room_id)
         };
 
         rooms[room_id] = room;
@@ -92,6 +104,6 @@ if (app.get('env') === 'production') {
 }
 
 
-app.listen(3000);
-console.log('Server is running at http://localhost:3000 (nodejs ' + process.version + ', ' + app.get('env') + ')');
+app.listen(serverPort);
+console.log('Server is running at http://localhost:' + serverPort + ' (nodejs ' + process.version + ', ' + app.get('env') + ')');
 
