@@ -1,4 +1,4 @@
-/*globals console location*/
+/*globals console location localStorage*/
 
 define([
     'module',
@@ -46,9 +46,26 @@ define([
     });
 
     var RoomView = Backbone.View.extend({
+        events: {
+            'click .cards .card': 'selectCard'
+        },
+
         render: function () {
             var template = Handlebars.compile($('#room-tmpl').html());
             this.$el.html(template({ room: this.options.room }));
+        },
+
+        selectCard: function (evt) {
+            var $card = $(evt.currentTarget);
+
+            if ($card.hasClass('selected')) {
+                $card.removeClass('selected');
+                this.options.room.select(null);
+            } else {
+                $('.cards .card', this.el).removeClass('selected');
+                $card.addClass('selected');
+                this.options.room.select($card.data('value'));
+            }
         }
     });
 
@@ -80,12 +97,50 @@ define([
     var PokerfaceApp = {
         running: false,
         router: null,
+        room: null,
+        roomView: null,
+
+        currentUser: function (callback) {
+            var user = localStorage.getItem('user');
+
+            if (! user) {
+                // TODO prompt for user name and store
+                user = 'Cory';
+            }
+
+            callback(user);
+        },
 
         _renderRoom: function (room) {
-            new RoomView({
-                el: 'body',
-                room: room
-            }).render();
+            var oldRoom = this.room;
+
+            this.room = room;
+
+            if (this.roomView) {
+                this.roomView.change(this.room);
+            } else {
+                this.roomView = new RoomView({
+                    el: 'body',
+                    room: room
+                });
+
+                this.roomView.render();
+            }
+
+            if (oldRoom) {
+                oldRoom.leave();
+            }
+
+            this.currentUser(function (user) {
+                if (user) {
+                    room.join(user, function (err) {
+                        if (err) {
+                            console.error('Error joining room ' + room.id, err);
+                            return;
+                        }
+                    });
+                }
+            });
         },
 
         openRoom: function (room) {

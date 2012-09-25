@@ -40,3 +40,7 @@ button.new-room .values {
     cursor: pointer;
 }
 
+.cards .card.selected {
+    background-color: #DDD;
+}
+

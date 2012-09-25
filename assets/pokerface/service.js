@@ -1,8 +1,83 @@
 define([
     'module',
-    'zepto'
-], function (module, $) {
+    'zepto',
+    'backbone',
+    'underscore',
+    'socket.io'
+], function (module, $, Backbone, _, io) {
     var apiBaseUrl = module.config().url || '/api';
+
+    var Room = _.extend({
+        user: null,
+        joined: false,
+        selected: null,
+
+        join: function (user, callback) {
+            if (this.user) {
+                throw Error('Room has already been joined');
+            }
+
+            if (! user) {
+                throw Error('Must join with user info');
+            }
+
+            this.user = user;
+            this.joined = false;
+
+            this.socket = io.connect();
+
+            var that = this;
+            this.socket.emit('join', this.id, this.user, function (err, user) {
+                if (err) {
+                    that.leave();
+                } else {
+                    that.joined = true;
+
+                    that.socket.on('select', function (user, value) {
+                        console.log('select ', user, value);
+                    });
+
+                    that.socket.on('join', function (user) {
+                        that.socket.emit('select', that.selected);
+                    });
+
+                    that.socket.on('leave', function (user) {
+                        console.log('leave ', user);
+                    });
+
+                    that.trigger('current:join', user);
+                }
+
+                if (callback) callback(err, user);
+            });
+        },
+
+        select: function (value) {
+            if (! this.socket) {
+                return;
+            }
+
+            this.selected = value;
+            this.socket.emit('select', value);
+        },
+
+        leave: function (silent) {
+            if (this.socket) {
+                var user = this.user;
+                var joined = this.joined;
+
+                this.socket.disconnect();
+                this.socket = null;
+                this.user = null;
+                this.selected = null;
+                this.joined = false;
+
+                if (joined) {
+                    this.trigger('current:leave', user);
+                }
+            }
+        }
+    }, Backbone.Events);
 
     return {
         roomTypes: function (callback) {
@@ -33,7 +108,7 @@ define([
                 url: apiUrl,
                 dataType: 'json',
                 success: function (data) {
-                    callback(null, data);
+                    callback(null, _.extend(data, Room));
                 },
                 error: function (xhr, errorType, error) {
                     callback({
@@ -55,7 +130,7 @@ define([
                 data: apiData,
                 dataType: 'json',
                 success: function (data) {
-                    callback(null, data);
+                    callback(null, _.extend(data, Room));
                 },
                 error: function (xhr, errorType, error) {
                     callback({

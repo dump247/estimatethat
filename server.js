@@ -19,10 +19,12 @@ var INFINITY_CARD = {
 };
 
 var QUESTION_CARD = {
+    value: 'question',
     label: '?'
 };
 
 var BREAK_CARD = {
+    value: 'break',
     label: "\u2615"
 };
 
@@ -181,7 +183,7 @@ function generateId (len, callback) {
             return;
         }
 
-        callback(null, buf.toString());
+        callback(null, buf.toString('base64'));
     });
 }
 
@@ -297,65 +299,74 @@ function getRoomType (id) {
     return _.find(ROOM_TYPES, function (r) { return r.id === id || r.code === id; });
 }
 
-function initUser (user, callback) {
-    if (user) {
-        if (_.isObject(user)) {
-            user = {
-                name: user.name,
-                id: user.id
-            };
-        } else {
-            user = {
-                name: user.toString()
-            };
-        }
-    } else {
-        user = {};
-    }
-
-    if (user.id) {
-        callback(null, user);
-    } else {
-        generateId(36, function (err, user_id) {
-            if (err) {
-                callback(err);
-                return;
-            }
-
-            user.id = user_id;
-            callback(null, user);
-        });
-    }
-}
-
-socket.listen(server).sockets.on('connection', function (socket) {
-    socket.on('create', function (room_type_id, user, fn) {
-        var room = {
-            type: getRoomType(room_type_id)
-        };
-
-        if (! room.type) {
-            fn('Unknown room type: ' + room_type_id);
+io = socket.listen(server);
+io.sockets.on('connection', function (socket) {
+    socket.on('join', function (room_id, user_name, fn) {
+        if (! _.isString(room_id) || room_id.length !== 8) {
+            fn('Invalid room id');
             return;
         }
 
-        initUser (user, function (err, user) {
+        room_id = room_id.toLowerCase();
+
+        if (! getRoomType(room_id[0])) {
+            fn('Invalid room id');
+            return;
+        }
+
+        if (! _.isString(user_name)) {
+            fn('Invalid user name');
+            return;
+        }
+
+        user_name = user_name.replace(/^\s+|\s+$/g, '');
+
+        if (user_name.length === 0) {
+            fn('Invalid user name');
+            return;
+        }
+
+        var registration = {
+            user: {
+                name: user_name,
+                id: socket.id
+            },
+
+            room: {
+                id: room_id
+            }
+        };
+
+        socket.set('registration', registration, function (err) {
             if (err) {
-                fn('Error creating room');
+                if (fn) fn('Error joining room');
                 return;
             }
 
-            generateSafeId(7, function (err, room_id) {
-                if (err) {
-                    fn('Error creating room');
-                    return;
-                }
+            socket.join(room_id);
+            socket.broadcast.to(room_id).emit('join', registration.user);
 
-                room.id = room.type.code + room_id;
-                socket.join(room_id);
+            if (fn) fn(null, registration.user);
+        });
+    });
 
-                fn(null, { user: user, room: room });
-            });
+    socket.on('select', function (value) {
+        socket.get('registration', function (err, registration) {
+            if (err || ! registration) {
+                return;
+            }
+
+            socket.broadcast.to(registration.room.id).emit('select', registration.user, value);
+        });
+    });
+
+    socket.on('disconnect', function () {
+        socket.get('registration', function (err, registration) {
+            if (err || ! registration) {
+                return;
+            }
+
+            socket.broadcast.to(registration.room.id).emit('leave', registration.user);
         });
     });
 });
