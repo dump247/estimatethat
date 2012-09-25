@@ -247,6 +247,7 @@ if (app.get('env') === 'production') {
 
     app.get('/', redirect('/app/'));
     app.get('/app/', index);
+    app.get('/app/:room_id', index);
     app.get('/app', redirect('/app/'));
     app.use('/assets', express['static'](__dirname + '/assets'));
     app.post('/api/create', create);
