@@ -9,6 +9,19 @@ var _ = require('underscore');
 var app = express();
 var serverPort = 3000;
 
+var INFINITY_CARD = {
+    value: Number.MAX_VALUE,
+    label: "\u221E"
+};
+
+var QUESTION_CARD = {
+    label: '?'
+};
+
+var BREAK_CARD = {
+    label: "\u2615"
+};
+
 var ROOM_TYPES = [
     {
         id: 'shirt-sizes',
@@ -30,7 +43,10 @@ var ROOM_TYPES = [
             }, {
                 value: 5,
                 label: 'XL'
-            }
+            },
+            INFINITY_CARD,
+            QUESTION_CARD,
+            BREAK_CARD
         ]
     },
 
@@ -72,7 +88,10 @@ var ROOM_TYPES = [
             }, {
                 value: 10,
                 label: '10'
-            }
+            },
+            INFINITY_CARD,
+            QUESTION_CARD,
+            BREAK_CARD
         ]
     },
 
@@ -114,7 +133,10 @@ var ROOM_TYPES = [
             }, {
                 value: 100,
                 label: '100'
-            }
+            },
+            INFINITY_CARD,
+            QUESTION_CARD,
+            BREAK_CARD
         ]
     }
 ];
