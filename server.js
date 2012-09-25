@@ -5,8 +5,12 @@ var express = require('express');
 var crypto = require('crypto');
 var url = require('url');
 var _ = require('underscore');
+var socket = require('socket.io');
+var http = require('http');
 
 var app = express();
+var server = http.createServer(app);
+
 var serverPort = 3000;
 
 var INFINITY_CARD = {
@@ -320,6 +324,7 @@ app.api.get('roomTypes', function (request, response) {
 
 app.api.post('create', create);
 
-app.listen(serverPort);
+server.listen(serverPort);
+socket.listen(server);
 console.log('Server is running at http://localhost:' + serverPort + ' (nodejs ' + process.version + ', ' + app.get('env') + ')');
 
