@@ -10,90 +10,107 @@ var app = express();
 var serverPort = 3000;
 
 var ROOM_TYPES = {
-    'shirt-sizes': [{
-            value: 1,
-            label: 'XS'
-        }, {
-            value: 2,
-            label: 'S'
-        }, {
-            value: 3,
-            label: 'M'
-        }, {
-            value: 4,
-            label: 'L'
-        }, {
-            value: 5,
-            label: 'XL'
-        }],
-    'sequence': [{
-            value: 0,
-            label: '0'
-        }, {
-            value: 1,
-            label: '1'
-        }, {
-            value: 2,
-            label: '2'
-        }, {
-            value: 3,
-            label: '3'
-        }, {
-            value: 4,
-            label: '4'
-        }, {
-            value: 5,
-            label: '5'
-        }, {
-            value: 6,
-            label: '6'
-        }, {
-            value: 7,
-            label: '7'
-        }, {
-            value: 8,
-            label: '8'
-        }, {
-            value: 9,
-            label: '9'
-        }, {
-            value: 10,
-            label: '10'
-        }],
-    'modified-fibonacci': [{
-            value: 0,
-            label: '0'
-        }, {
-            value: 0.5,
-            label: "\u00BD"
-        }, {
-            value: 1,
-            label: '1'
-        }, {
-            value: 2,
-            label: '2'
-        }, {
-            value: 3,
-            label: '3'
-        }, {
-            value: 5,
-            label: '5'
-        }, {
-            value: 8,
-            label: '8'
-        }, {
-            value: 13,
-            label: '13'
-        }, {
-            value: 20,
-            label: '20'
-        }, {
-            value: 40,
-            label: '40'
-        }, {
-            value: 100,
-            label: '100'
-        }]
+    'shirt-sizes': {
+        code: 'a',
+        cards: [
+            {
+                value: 1,
+                label: 'XS'
+            }, {
+                value: 2,
+                label: 'S'
+            }, {
+                value: 3,
+                label: 'M'
+            }, {
+                value: 4,
+                label: 'L'
+            }, {
+                value: 5,
+                label: 'XL'
+            }
+        ]
+    },
+
+    'sequence': {
+        code: 'b',
+        cards: [
+            {
+                value: 0,
+                label: '0'
+            }, {
+                value: 1,
+                label: '1'
+            }, {
+                value: 2,
+                label: '2'
+            }, {
+                value: 3,
+                label: '3'
+            }, {
+                value: 4,
+                label: '4'
+            }, {
+                value: 5,
+                label: '5'
+            }, {
+                value: 6,
+                label: '6'
+            }, {
+                value: 7,
+                label: '7'
+            }, {
+                value: 8,
+                label: '8'
+            }, {
+                value: 9,
+                label: '9'
+            }, {
+                value: 10,
+                label: '10'
+            }
+        ]
+    },
+
+    'modified-fibonacci': {
+        code: 'c',
+        cards: [
+            {
+                value: 0,
+                label: '0'
+            }, {
+                value: 0.5,
+                label: "\u00BD"
+            }, {
+                value: 1,
+                label: '1'
+            }, {
+                value: 2,
+                label: '2'
+            }, {
+                value: 3,
+                label: '3'
+            }, {
+                value: 5,
+                label: '5'
+            }, {
+                value: 8,
+                label: '8'
+            }, {
+                value: 13,
+                label: '13'
+            }, {
+                value: 20,
+                label: '20'
+            }, {
+                value: 40,
+                label: '40'
+            }, {
+                value: 100,
+                label: '100'
+            }
+        ]
+    }
 };
 
 app.set('view engine', 'jade');
@@ -239,20 +256,41 @@ function create (request, response) {
 }
 
 if (app.get('env') === 'production') {
-    // TODO
+    // TODO assetsUrl
+    app.set('appRoot', '/');
+
+    app.get('/', index);
+    app.get('/:room_id', index);
 } else {
     app.set('assetsUrl', '/assets');
     app.set('appRoot', '/app/');
-    app.set('apiUrl', '/api');
 
     app.get('/', redirect('/app/'));
     app.get('/app/', index);
     app.get('/app/:room_id', index);
     app.get('/app', redirect('/app/'));
     app.use('/assets', express['static'](__dirname + '/assets'));
-    app.post('/api/create', create);
 }
 
+app.api = {
+    root: app.get('appRoot') + 'api',
+
+    get: function (path, callback) {
+        app.get(this.root + '/' + path, callback);
+    },
+
+    post: function (path, callback) {
+        app.post(this.root + '/' + path, callback);
+    }
+};
+
+app.set('apiUrl', app.api.root);
+
+app.api.get('roomTypes', function (request, response) {
+    response.send(200, ROOM_TYPES);
+});
+
+app.api.post('create', create);
 
 app.listen(serverPort);
 console.log('Server is running at http://localhost:' + serverPort + ' (nodejs ' + process.version + ', ' + app.get('env') + ')');
