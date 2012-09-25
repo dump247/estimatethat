@@ -9,8 +9,10 @@ var _ = require('underscore');
 var app = express();
 var serverPort = 3000;
 
-var ROOM_TYPES = {
-    'shirt-sizes': {
+var ROOM_TYPES = [
+    {
+        id: 'shirt-sizes',
+        title: 'Shirt Sizes',
         code: 'a',
         cards: [
             {
@@ -32,7 +34,9 @@ var ROOM_TYPES = {
         ]
     },
 
-    'sequence': {
+    {
+        id: 'sequence',
+        title: 'Sequence',
         code: 'b',
         cards: [
             {
@@ -72,7 +76,9 @@ var ROOM_TYPES = {
         ]
     },
 
-    'modified-fibonacci': {
+    {
+        id: 'modified-fibonacci',
+        title: 'Modified Fibonacci',
         code: 'c',
         cards: [
             {
@@ -111,7 +117,7 @@ var ROOM_TYPES = {
             }
         ]
     }
-};
+];
 
 app.set('view engine', 'jade');
 app.set('views', __dirname + '/views');

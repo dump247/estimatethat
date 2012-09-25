@@ -13,6 +13,16 @@ define([
 
     var appRoot = module.config().root;
 
+    Handlebars.registerHelper('join', function (arr, separator, options) {
+        if (options.inverse && !arr.length) {
+            return options.inverse(this);
+        }
+
+        return arr.map(function (item) {
+            return options.fn(item);
+        }).join(separator);
+    });
+
     var NewRoomView = Backbone.View.extend({
         events: {
             'click button.new-room': 'newRoom'
@@ -20,7 +30,7 @@ define([
 
         render: function () {
             var template = Handlebars.compile($('#new-room-tmpl').html());
-            this.$el.html(template());
+            this.$el.html(template({ rooms: this.options.rooms }));
         },
 
         newRoom: function (evt) {
@@ -42,9 +52,17 @@ define([
         },
 
         index: function () {
-            new NewRoomView({
-                el: 'body'
-            }).render();
+            Pokerface.roomTypes(function (err, rooms) {
+                if (err) {
+                    console.error(err);
+                    return;
+                }
+
+                new NewRoomView({
+                    el: 'body',
+                    rooms: rooms
+                }).render();
+            });
         },
 
         room: function (room_id) {
