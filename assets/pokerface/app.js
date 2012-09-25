@@ -48,7 +48,7 @@ define([
         },
 
         room: function (room_id) {
-            console.log('room ' + room_id);
+            PokerfaceApp.openRoom(room_id);
         }
     });
 
@@ -59,7 +59,10 @@ define([
         openRoom: function (room) {
             if (this.running) {
                 if (_.isString(room)) {
-                    // TODO load room
+                    // TODO load room via service api
+                    room = {
+                        id: room
+                    };
                 }
 
                 this.router.navigate(room.id);
