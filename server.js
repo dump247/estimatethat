@@ -151,9 +151,6 @@ app.set('views', __dirname + '/views');
 app.use(express.bodyParser());
 app.use(app.router);
 
-// TODO replace this with a real data store
-var rooms = {};
-
 function createUrl (request) {
     return url.format({
         protocol: request.protocol,
@@ -177,81 +174,21 @@ function index (request, response) {
     });
 }
 
-function normalizeCards (cards) {
-    var prevValue = null;
-
-    for (var i = 0; i < cards.length; i += 1) {
-        var card = cards[i];
-        var value;
-        var label;
-
-        if (card) {
-            if (_.isString(card)) {
-                if (prevValue === null) {
-                    prevValue = i + 1;
-                } else {
-                    prevValue += 1;
-                }
-
-                value = prevValue;
-                label = card;
-            } else if (_.isNumber(card)) {
-                prevValue = card;
-                value = card;
-                label = card.toString(10);
-            } else {
-                if (_.isNumber(card.value)) {
-                    prevValue = card.value;
-                    value = card.value;
-                } else {
-                    if (prevValue === null) {
-                        prevValue = i + 1;
-                    } else {
-                        prevValue += 1;
-                    }
-
-                    value = prevValue;
-                }
-
-                if (_.isString(card.label)) {
-                    label = card.label;
-                } else {
-                    label = value.toString(10);
-                }
-            }
-        }
-
-        cards[i] = {
-            value: value,
-            label: label
-        };
-    }
-}
-
-function create (request, response) {
-    var roomType = request.body.type;
-    var cards = request.body.cards;
-
-    if (_.isArray(cards) && cards.length > 0) {
-        roomType = 'custom';
-        normalizeCards(cards);
-    } else {
-        if (! _.isString(roomType) || roomType === '') {
-            roomType = 'modified-fibonacci';
-        }
-
-        cards = ROOM_TYPES[roomType];
-
-        if (! cards) {
-            response.send(400, 'Invalid room type ' + roomType);
+function generateId (len, callback) {
+    crypto.randomBytes(len, function (ex, buf) {
+        if (ex) {
+            callback(ex);
             return;
         }
-    }
 
-    crypto.randomBytes(7, function (ex, buf) {
+        callback(null, buf.toString());
+    });
+}
+
+function generateSafeId (len, callback) {
+    crypto.randomBytes(len, function (ex, buf) {
         if (ex) {
-            response.send(500);
-            console.log('Error generating random room id: ', ex);
+            callback(ex);
             return;
         }
 
@@ -271,19 +208,7 @@ function create (request, response) {
             }
         }
 
-        var room_id = buf.toString();
-        var created = new Date();
-        var room = {
-            id: room_id,
-            type: roomType,
-            cards: cards,
-            created: created,
-            access: created,
-            url: createUrl(request, request.app.get('appRoot'), room_id)
-        };
-
-        rooms[room_id] = room;
-        response.send(200, room);
+        callback(null, buf.toString());
     });
 }
 
@@ -322,9 +247,75 @@ app.api.get('roomTypes', function (request, response) {
     response.send(200, ROOM_TYPES);
 });
 
-app.api.post('create', create);
-
 server.listen(serverPort);
-socket.listen(server);
+
+function getRoomType (id) {
+    id = id.toLowerCase();
+    return _.find(ROOM_TYPES, function (r) { return r.id === id; });
+}
+
+function initUser (user, callback) {
+    if (user) {
+        if (_.isObject(user)) {
+            user = {
+                name: user.name,
+                id: user.id
+            };
+        } else {
+            user = {
+                name: user.toString()
+            };
+        }
+    } else {
+        user = {};
+    }
+
+    if (user.id) {
+        callback(null, user);
+    } else {
+        generateId(36, function (err, user_id) {
+            if (err) {
+                callback(err);
+                return;
+            }
+
+            user.id = user_id;
+            callback(null, user);
+        });
+    }
+}
+
+socket.listen(server).sockets.on('connection', function (socket) {
+    socket.on('create', function (room_type_id, user, fn) {
+        var room = {
+            type: getRoomType(room_type_id)
+        };
+
+        if (! room.type) {
+            fn('Unknown room type: ' + room_type_id);
+            return;
+        }
+
+        initUser (user, function (err, user) {
+            if (err) {
+                fn('Error creating room');
+                return;
+            }
+
+            generateSafeId(7, function (err, room_id) {
+                if (err) {
+                    fn('Error creating room');
+                    return;
+                }
+
+                room.id = room.type.code + room_id;
+                socket.join(room_id);
+
+                fn(null, { user: user, room: room });
+            });
+        });
+    });
+});
+
 console.log('Server is running at http://localhost:' + serverPort + ' (nodejs ' + process.version + ', ' + app.get('env') + ')');
 
