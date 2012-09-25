@@ -9,6 +9,93 @@ var _ = require('underscore');
 var app = express();
 var serverPort = 3000;
 
+var ROOM_TYPES = {
+    'shirt-sizes': [{
+            value: 1,
+            label: 'XS'
+        }, {
+            value: 2,
+            label: 'S'
+        }, {
+            value: 3,
+            label: 'M'
+        }, {
+            value: 4,
+            label: 'L'
+        }, {
+            value: 5,
+            label: 'XL'
+        }],
+    'sequence': [{
+            value: 0,
+            label: '0'
+        }, {
+            value: 1,
+            label: '1'
+        }, {
+            value: 2,
+            label: '2'
+        }, {
+            value: 3,
+            label: '3'
+        }, {
+            value: 4,
+            label: '4'
+        }, {
+            value: 5,
+            label: '5'
+        }, {
+            value: 6,
+            label: '6'
+        }, {
+            value: 7,
+            label: '7'
+        }, {
+            value: 8,
+            label: '8'
+        }, {
+            value: 9,
+            label: '9'
+        }, {
+            value: 10,
+            label: '10'
+        }],
+    'modified-fibonacci': [{
+            value: 0,
+            label: '0'
+        }, {
+            value: 0.5,
+            label: "\u00BD"
+        }, {
+            value: 1,
+            label: '1'
+        }, {
+            value: 2,
+            label: '2'
+        }, {
+            value: 3,
+            label: '3'
+        }, {
+            value: 5,
+            label: '5'
+        }, {
+            value: 8,
+            label: '8'
+        }, {
+            value: 13,
+            label: '13'
+        }, {
+            value: 20,
+            label: '20'
+        }, {
+            value: 40,
+            label: '40'
+        }, {
+            value: 100,
+            label: '100'
+        }]
+};
+
 app.set('view engine', 'jade');
 app.set('views', __dirname + '/views');
 
@@ -41,14 +128,75 @@ function index (request, response) {
     });
 }
 
-function create (request, response) {
-    var roomType = request.body.type.toLowerCase();
+function normalizeCards (cards) {
+    var prevValue = null;
 
-    if (roomType !== 'modified-fibonacci' &&
-        roomType !== 'sequence' &&
-        roomType !== 'shirt-sizes') {
-        response.send(400, 'Invalid room type: ' + roomType);
-        return;
+    for (var i = 0; i < cards.length; i += 1) {
+        var card = cards[i];
+        var value;
+        var label;
+
+        if (card) {
+            if (_.isString(card)) {
+                if (prevValue === null) {
+                    prevValue = i + 1;
+                } else {
+                    prevValue += 1;
+                }
+
+                value = prevValue;
+                label = card;
+            } else if (_.isNumber(card)) {
+                prevValue = card;
+                value = card;
+                label = card.toString(10);
+            } else {
+                if (_.isNumber(card.value)) {
+                    prevValue = card.value;
+                    value = card.value;
+                } else {
+                    if (prevValue === null) {
+                        prevValue = i + 1;
+                    } else {
+                        prevValue += 1;
+                    }
+
+                    value = prevValue;
+                }
+
+                if (_.isString(card.label)) {
+                    label = card.label;
+                } else {
+                    label = value.toString(10);
+                }
+            }
+        }
+
+        cards[i] = {
+            value: value,
+            label: label
+        };
+    }
+}
+
+function create (request, response) {
+    var roomType = request.body.type;
+    var cards = request.body.cards;
+
+    if (_.isArray(cards) && cards.length > 0) {
+        roomType = 'custom';
+        normalizeCards(cards);
+    } else {
+        if (! _.isString(roomType) || roomType === '') {
+            roomType = 'modified-fibonacci';
+        }
+
+        cards = ROOM_TYPES[roomType];
+
+        if (! cards) {
+            response.send(400, 'Invalid room type ' + roomType);
+            return;
+        }
     }
 
     crypto.randomBytes(7, function (ex, buf) {
@@ -79,6 +227,7 @@ function create (request, response) {
         var room = {
             id: room_id,
             type: roomType,
+            cards: cards,
             created: created,
             access: created,
             url: createUrl(request, request.app.get('appRoot'), room_id)
