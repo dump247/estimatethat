@@ -45,7 +45,6 @@ define([
             new NewRoomView({
                 el: 'body'
             }).render();
-            console.log('index');
         },
 
         room: function (room_id) {
