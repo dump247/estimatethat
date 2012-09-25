@@ -28,7 +28,12 @@ html
 
         script(type='text/x-handlebars-template', id='room-tmpl').
             <div class="container">
-                <div id="users">
+                <div id="header">
+                    <div id="users">
+                    </div>
+                    <div id="stats" style="display: none">
+                        <div id="stat-average" class="stat"><span class="stat-title">Average</span><span class="stat-value"></span></div>
+                    </div>
                 </div>
                 <div class="cards">
                 {{#each room.type.cards}}
@@ -41,7 +46,7 @@ html
             <div id="user_{{user.id}}" class="user">
                 <div class="username">{{user.name}}</div>
                 {{#if card}}
-                <div data-value="{{card.value}}" class="card">{{card.label}}</div>
+                <div data-value="{{card.value}}" class="card selected">{{card.label}}</div>
                 {{else}}
                 <div class="card none">&nbsp;</div>
                 {{/if}}

@@ -63,7 +63,10 @@ define([
                 } else {
                     $('#users', view.el).append(userContent);
                 }
+
+                view._updateStats();
             }
+
 
             options.room.on('user:join', function (user, card) {
                 updateUser(user, card);
@@ -71,6 +74,7 @@ define([
 
             options.room.on('user:leave', function (user) {
                 $('#user_' + user.id, view.el).remove();
+                view._updateStats();
             });
 
             options.room.on('user:select', function (user, card) {
@@ -96,6 +100,36 @@ define([
                     value: $card.data('value'),
                     label: $card.text()
                 });
+            }
+
+            this._updateStats();
+        },
+
+        _getCard: function (value) {
+            return _.find(this.options.room.type.cards, function (c) { return c.value.toString() === value; });
+        },
+
+        _updateStats: function () {
+            var view = this;
+            var $users = $('#users .user');
+
+            if ($users.length === 0) {
+                $('#stats').hide();
+            } else {
+                $('#stats').show();
+
+                var average = { count: 0, total: 0, value: function () { return this.total === 0 ? 0 : this.total / this.count; } };
+
+                $('.card.selected', this.el).each(function () {
+                    var card = view._getCard($(this).data('value'));
+
+                    if (card && _.isNumber(card.value)) {
+                        average.count += 1;
+                        average.total += card.value;
+                    }
+                });
+
+                $('#stat-average .stat-value').text(average.value().toFixed(2));
             }
         }
     });

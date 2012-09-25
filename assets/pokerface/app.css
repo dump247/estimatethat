@@ -49,6 +49,28 @@ button.new-room .values {
     background-color: white;
 }
 
+.stat-title {
+    margin: 5px;
+}
+
+#header {
+    border-bottom: 1px solid #666;
+    margin: 0 5px 5px 5px;
+    padding: 5px;
+    border: 1px solid #666;
+
+    -moz-border-bottom-right-radius: .3em;
+    -moz-border-bottom-left-radius: .3em;
+    -webkit-border-bottom-right-radius: .3em;
+    -webkit-border-bottom-left-radius: .3em;
+    -khtml-border-bottom-right-radius: .3em;
+    -khtml-border-bottom-left-radius: .3em;
+    border-bottom-right-radius: .3em;
+    border-bottom-left-radius: .3em;
+
+    border-top: none;
+}
+
 .cards .card {
     line-height: 1em;
     display: inline-block;
@@ -73,8 +95,7 @@ button.new-room .values {
     cursor: pointer;
 }
 
-.cards .card.selected,
-#users .card {
+.card.selected {
     background-color: #DDD;
 }
 
