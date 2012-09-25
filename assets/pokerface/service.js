@@ -20,7 +20,8 @@ define([
                 error: function (xhr, errorType, error) {
                     callback({
                         message: 'Error occurred creating ' + type + ' room.',
-                        request: { url: apiUrl, data: apiData }
+                        request: { url: apiUrl, data: apiData },
+                        response: { status: xhr.status, reason: xhr.responseText }
                     });
                 }
             });

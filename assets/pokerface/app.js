@@ -1,3 +1,5 @@
+/*globals console location*/
+
 define([
     'module',
     'underscore',
@@ -23,7 +25,12 @@ define([
 
         newRoom: function (evt) {
             Pokerface.create(evt.currentTarget.id, function (err, room) {
-                console.log(err, room);
+                if (err) {
+                    console.error(err);
+                    return;
+                }
+
+                PokerfaceApp.openRoom(room);
             });
         }
     });
@@ -46,9 +53,19 @@ define([
         }
     });
 
-    return {
+    var PokerfaceApp = {
         running: false,
         router: null,
+
+        openRoom: function (room) {
+            if (this.running) {
+                if (_.isString(room)) {
+                    // TODO load room
+                }
+
+                this.router.navigate(room.id);
+            }
+        },
 
         start: function () {
             if (! this.running) {
@@ -62,5 +79,7 @@ define([
             }
         }
     };
+
+    return PokerfaceApp;
 });
 
