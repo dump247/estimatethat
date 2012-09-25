@@ -50,6 +50,34 @@ define([
             'click .cards .card': 'selectCard'
         },
 
+        initialize: function (options) {
+            var view = this;
+
+            function updateUser (user, card) {
+                var userTemplate = Handlebars.compile($('#user-tmpl').html());
+                var userContent = userTemplate({ user: user, card: card });
+                var $user = $('#user_' + user.id, view.el);
+
+                if ($user.length > 0) {
+                    $user.replaceWith(userContent);
+                } else {
+                    $('#users', view.el).append(userContent);
+                }
+            }
+
+            options.room.on('user:join', function (user, card) {
+                updateUser(user, card);
+            });
+
+            options.room.on('user:leave', function (user) {
+                $('#user_' + user.id, view.el).remove();
+            });
+
+            options.room.on('user:select', function (user, card) {
+                updateUser(user, card);
+            });
+        },
+
         render: function () {
             var template = Handlebars.compile($('#room-tmpl').html());
             this.$el.html(template({ room: this.options.room }));
@@ -64,7 +92,10 @@ define([
             } else {
                 $('.cards .card', this.el).removeClass('selected');
                 $card.addClass('selected');
-                this.options.room.select($card.data('value'));
+                this.options.room.select({
+                    value: $card.data('value'),
+                    label: $card.text()
+                });
             }
         }
     });

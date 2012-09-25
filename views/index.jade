@@ -27,10 +27,24 @@ html
             </div>
 
         script(type='text/x-handlebars-template', id='room-tmpl').
-            <div class="container cards">
-            {{#each room.type.cards}}
-                <div data-value="{{value}}" class="card">{{label}}</div>
-            {{/each}}
+            <div class="container">
+                <div id="users">
+                </div>
+                <div class="cards">
+                {{#each room.type.cards}}
+                    <div data-value="{{value}}" class="card">{{label}}</div>
+                {{/each}}
+                </div>
+            </div>
+
+        script(type='text/x-handlebars-template', id='user-tmpl').
+            <div id="user_{{user.id}}" class="user">
+                <div class="username">{{user.name}}</div>
+                {{#if card}}
+                <div data-value="{{card.value}}" class="card">{{card.label}}</div>
+                {{else}}
+                <div class="card none">&nbsp;</div>
+                {{/if}}
             </div>
 
         script(src=assetsUrl+'/require.js', data-main='pokerface/main')

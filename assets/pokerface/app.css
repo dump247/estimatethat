@@ -16,6 +16,39 @@ button.new-room .values {
     padding-right: 10%;
 }
 
+#users .user {
+    display: inline-block;
+}
+
+#users .user .username {
+    display: inline-block;
+}
+
+#users .card {
+    line-height: 1em;
+    display: inline-block;
+    width: 1.7em;
+    height: 1.7em;
+    border: 1px solid #666;
+    -moz-border-radius: .3em;
+    -webkit-border-radius: .3em;
+    -khtml-border-radius: .3em;
+    border-radius: .3em;
+    padding: .25em;
+    margin: 0 .5em .5em 0;
+    text-align: center;
+    font-size: 1.75em;
+    -moz-box-shadow: .2em .2em .5em #333;
+    -webkit-box-shadow: .2em .2em .5em #333;
+    box-shadow: .2em .2em .5em #333;
+    overflow: hidden;
+    padding-top: 0.75em;
+}
+
+#users .card.none {
+    background-color: white;
+}
+
 .cards .card {
     line-height: 1em;
     display: inline-block;
@@ -40,7 +73,8 @@ button.new-room .values {
     cursor: pointer;
 }
 
-.cards .card.selected {
+.cards .card.selected,
+#users .card {
     background-color: #DDD;
 }
 

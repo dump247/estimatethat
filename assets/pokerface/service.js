@@ -34,15 +34,16 @@ define([
                     that.joined = true;
 
                     that.socket.on('select', function (user, value) {
-                        console.log('select ', user, value);
+                        that.trigger('user:select', user, value);
                     });
 
-                    that.socket.on('join', function (user) {
+                    that.socket.on('join', function (user, value) {
                         that.socket.emit('select', that.selected);
+                        that.trigger('user:join', user, value);
                     });
 
                     that.socket.on('leave', function (user) {
-                        console.log('leave ', user);
+                        that.trigger('user:leave', user);
                     });
 
                     that.trigger('current:join', user);
