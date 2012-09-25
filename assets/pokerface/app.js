@@ -36,7 +36,7 @@ define([
         newRoom: function (evt) {
             Pokerface.create(evt.currentTarget.id, function (err, room) {
                 if (err) {
-                    console.error(err);
+                    console.error(err.message, err);
                     return;
                 }
 
@@ -74,16 +74,28 @@ define([
         running: false,
         router: null,
 
+        _loadRoomView: function (room) {
+            $('body').html('');
+        },
+
         openRoom: function (room) {
+            var app = this;
+
             if (this.running) {
                 if (_.isString(room)) {
-                    // TODO load room via service api
-                    room = {
-                        id: room
-                    };
-                }
+                    Pokerface.get(room, function (err, room) {
+                        if (err) {
+                            console.error(err.message, err);
+                            return;
+                        }
 
-                this.router.navigate(room.id);
+                        app.router.navigate(room.id);
+                        app._loadRoomView(room);
+                    });
+                } else {
+                    app.router.navigate(room.id);
+                    app._loadRoomView(room);
+                }
             }
         },
 

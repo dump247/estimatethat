@@ -247,11 +247,54 @@ app.api.get('roomTypes', function (request, response) {
     response.send(200, ROOM_TYPES);
 });
 
+app.api.get('room/:room_id', function (request, response) {
+    var room_id = request.params.room_id;
+
+    if (! room_id || room_id.length !== 8) {
+        response.send(400, 'Invalid room id: ' + room_id);
+        return;
+    }
+
+    var room_type = getRoomType(room_id[0]);
+
+    if (room_type) {
+        response.send(200, {
+            id: room_id,
+            url: createUrl(request, app.get('appRoot'), room_id),
+            type: room_type
+        });
+    } else {
+        response.send(404, 'Room not found: ' + room_id);
+    }
+});
+
+app.api.post('create', function (request, response) {
+    var room = {
+       type: getRoomType(request.body.type)
+    };
+
+    if (! room.type) {
+        response.send(400, 'Unknown room type: ' + request.body.type);
+        return;
+    }
+
+    generateSafeId(7, function (err, room_id) {
+        if (err) {
+            console.log('Error generating room id', err);
+            response.send(500, 'Error creating room');
+            return;
+        }
+
+        room.id = room.type.code + room_id;
+        room.url = createUrl(request, app.get('appRoot'), room.id);
+        response.send(200, room);
+    });
+});
+
 server.listen(serverPort);
 
 function getRoomType (id) {
-    id = id.toLowerCase();
-    return _.find(ROOM_TYPES, function (r) { return r.id === id; });
+    return _.find(ROOM_TYPES, function (r) { return r.id === id || r.code === id; });
 }
 
 function initUser (user, callback) {

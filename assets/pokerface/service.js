@@ -25,6 +25,26 @@ define([
             });
         },
 
+        get: function (room_id, callback) {
+            var apiUrl = apiBaseUrl + '/room/' + room_id;
+
+            $.ajax({
+                type: 'GET',
+                url: apiUrl,
+                dataType: 'json',
+                success: function (data) {
+                    callback(null, data);
+                },
+                error: function (xhr, errorType, error) {
+                    callback({
+                        message: 'Error occurred getting room ' + room_id,
+                        request: { url: apiUrl },
+                        response: { status: xhr.status, reason: xhr.responseText }
+                    });
+                }
+            });
+        },
+
         create: function (type, callback) {
             var apiUrl = apiBaseUrl + '/create';
             var apiData = { type: type };
