@@ -26,6 +26,13 @@ html
             {{/each}}
             </div>
 
+        script(type='text/x-handlebars-template', id='room-tmpl').
+            <div class="cards">
+            {{#each room.type.cards}}
+                <div data-value="{{value}}" class="card">{{label}}</div>
+            {{/each}}
+            </div>
+
         script(src=assetsUrl+'/require.js', data-main='pokerface/main')
         link(rel='stylesheet', href=assetsUrl+'/bootstrap/bootstrap.css')
         link(rel='stylesheet', href=assetsUrl+'/pokerface/app.css')

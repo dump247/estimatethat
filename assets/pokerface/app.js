@@ -45,6 +45,13 @@ define([
         }
     });
 
+    var RoomView = Backbone.View.extend({
+        render: function () {
+            var template = Handlebars.compile($('#room-tmpl').html());
+            this.$el.html(template({ room: this.options.room }));
+        }
+    });
+
     var PokerfaceRouter = Backbone.Router.extend({
         routes: {
             '':           'index',
@@ -74,8 +81,11 @@ define([
         running: false,
         router: null,
 
-        _loadRoomView: function (room) {
-            $('body').html('');
+        _renderRoom: function (room) {
+            new RoomView({
+                el: 'body',
+                room: room
+            }).render();
         },
 
         openRoom: function (room) {
@@ -90,11 +100,11 @@ define([
                         }
 
                         app.router.navigate(room.id);
-                        app._loadRoomView(room);
+                        app._renderRoom(room);
                     });
                 } else {
                     app.router.navigate(room.id);
-                    app._loadRoomView(room);
+                    app._renderRoom(room);
                 }
             }
         },
