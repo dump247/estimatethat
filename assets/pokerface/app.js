@@ -7,7 +7,10 @@ define([
     'zepto',
     'handlebars',
 
-    'pokerface/service'
+    'pokerface/service',
+
+    // No module
+    'bootstrap'
 ], function (module, _, Backbone, $, Handlebars, Pokerface) {
     'use strict';
 
@@ -181,7 +184,7 @@ define([
                 }
 
                 new NewRoomView({
-                    el: 'body',
+                    el: '#content',
                     rooms: rooms
                 }).render();
             });
@@ -202,11 +205,14 @@ define([
             var user = localStorage.getItem('user');
 
             if (! user) {
-                // TODO prompt for user name and store
-                user = 'Cory';
+                $('#name-modal').modal('show').one('hide', function () {
+                    var user_name = $('#name-modal').data('user_name');
+                    localStorage.setItem('user', user_name);
+                    callback(user_name);
+                });
+            } else {
+                callback(user);
             }
-
-            callback(user);
         },
 
         _renderRoom: function (room) {
@@ -218,7 +224,7 @@ define([
                 this.roomView.change(this.room);
             } else {
                 this.roomView = new RoomView({
-                    el: 'body',
+                    el: '#content',
                     room: room
                 });
 
@@ -271,6 +277,26 @@ define([
                     pushState: true,
                     root: appRoot
                 });
+
+                $('#name-modal').on('hidden', function () {
+                    $('#name-modal').data('user_name', '');
+                    $('#input-name').val('');
+                });
+
+                $('#name-modal').on('shown', function () {
+                    $('#input-name')[0].focus();
+                });
+
+                $('#name-modal')[0].onsubmit = function () {
+                    var user_name = $('#input-name').val();
+
+                    if (user_name.length > 0) {
+                        $('#name-modal').data('user_name', user_name);
+                        $('#name-modal').modal('hide');
+                    }
+
+                    return false;
+                };
             }
         }
     };

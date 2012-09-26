@@ -27,7 +27,6 @@ html
             </div>
 
         script(type='text/x-handlebars-template', id='room-tmpl').
-            <div class="container">
                 <div id="header">
                     <div id="users">
                     </div>
@@ -40,7 +39,6 @@ html
                     <div data-value="{{value}}" data-label="{{label}}" class="card"><span class="count"></span>{{label}}</div>
                 {{/each}}
                 </div>
-            </div>
 
         script(type='text/x-handlebars-template', id='user-tmpl').
             <div id="user_{{user.id}}" class="user">
@@ -56,3 +54,16 @@ html
         link(rel='stylesheet', href=assetsUrl+'/bootstrap/bootstrap.css')
         link(rel='stylesheet', href=assetsUrl+'/pokerface/app.css')
     body
+        div(class="container", id="content")
+        div(class="modal hide fade", id="name-modal")
+            form(class="form-horizontal modal-form")
+                div(class="modal-header")
+                    h3 Enter your name
+                div(class="modal-body")
+                        div(class="control-group")
+                            label(class="control-label", for="input-name") Name
+                            div(class="controls")
+                                input(type="text", id="input-name", placeholder="Name")
+                div(class="modal-footer")
+                    button(type="submit", class="btn btn-primary", aria-hidden="true") Join
+
