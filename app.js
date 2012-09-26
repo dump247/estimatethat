@@ -7,6 +7,7 @@ var url = require('url');
 var _ = require('underscore');
 var socket = require('socket.io');
 var http = require('http');
+var packageInfo = require('./package.json');
 
 var app = express();
 var server = http.createServer(app);
@@ -214,13 +215,16 @@ function generateSafeId (len, callback) {
     });
 }
 
-//if (app.get('env') === 'production') {
-    //// TODO assetsUrl
-    //app.set('appRoot', '/');
+if (app.get('env') === 'production') {
+    app.set('assetsUrl', '/assets/' + packageInfo.version);
+    app.set('appRoot', '/');
 
-    //app.get('/', index);
-    //app.get('/:room_id', index);
-//} else {
+    var oneYear = 31557600000;
+
+    app.get('/', index);
+    app.use(app.get('assetsUrl'), express['static'](__dirname + '/assets', { maxAge: oneYear }));
+    app.get('/:room_id', index);
+} else {
     app.set('assetsUrl', '/assets');
     app.set('appRoot', '/app/');
 
@@ -229,7 +233,7 @@ function generateSafeId (len, callback) {
     app.get('/app/:room_id', index);
     app.get('/app', redirect('/app/'));
     app.use('/assets', express['static'](__dirname + '/assets'));
-//}
+}
 
 app.api = {
     root: app.get('appRoot') + 'api',
