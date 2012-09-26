@@ -11,7 +11,7 @@ var http = require('http');
 var app = express();
 var server = http.createServer(app);
 
-var serverPort = 3000;
+var serverPort = process.env.VMC_APP_PORT || 3000;
 
 var INFINITY_CARD = {
     value: Number.MAX_VALUE,
