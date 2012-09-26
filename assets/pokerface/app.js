@@ -113,7 +113,6 @@ define([
             var view = this;
             var $users = $('#users .user');
 
-            $('.card').removeClass('one_vote');
             $('.card .count').hide();
 
             if ($users.length === 0) {
@@ -162,7 +161,6 @@ define([
 
                     if (totals[cardValue]) {
                         $count.text(totals[cardValue]).show();
-                        $count.parent().addClass('one_vote');
                     }
                 });
             }
