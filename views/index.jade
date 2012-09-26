@@ -37,7 +37,7 @@ html
                 </div>
                 <div class="cards">
                 {{#each room.type.cards}}
-                    <div data-value="{{value}}" class="card">{{label}}</div>
+                    <div data-value="{{value}}" data-label="{{label}}" class="card"><span class="count"></span>{{label}}</div>
                 {{/each}}
                 </div>
             </div>

@@ -98,7 +98,7 @@ define([
                 $card.addClass('selected');
                 this.options.room.select({
                     value: $card.data('value'),
-                    label: $card.text()
+                    label: $card.data('label')
                 });
             }
 
@@ -113,23 +113,45 @@ define([
             var view = this;
             var $users = $('#users .user');
 
+            $('.card .count').hide();
+
             if ($users.length === 0) {
                 $('#stats').hide();
             } else {
                 $('#stats').show();
 
-                var average = { count: 0, total: 0, value: function () { return this.total === 0 ? 0 : this.total / this.count; } };
+                var average = {
+                    count: 0,
+                    total: 0,
+                    value: function () { return this.total === 0 ? 0 : this.total / this.count; }
+                };
+
+                var totals = {
+                };
 
                 $('.card.selected', this.el).each(function () {
                     var card = view._getCard($(this).data('value'));
 
-                    if (card && _.isNumber(card.value)) {
-                        average.count += 1;
-                        average.total += card.value;
+                    if (card) {
+                        var total = totals[card.value.toString()] || 0;
+                        totals[card.value.toString()] = total + 1;
+
+                        if (_.isNumber(card.value)) {
+                            average.count += 1;
+                            average.total += card.value;
+                        }
                     }
                 });
 
                 $('#stat-average .stat-value').text(average.value().toFixed(2));
+                $('.card .count').each(function () {
+                    var $count = $(this);
+                    var cardValue = $count.parent().data('value');
+
+                    if (totals[cardValue]) {
+                        $count.text(totals[cardValue]).show();
+                    }
+                });
             }
         }
     });

@@ -49,6 +49,14 @@ button.new-room .values {
     background-color: white;
 }
 
+.card .count {
+    position: absolute;
+    top: -.35em;
+    left: 0.2em;
+    font-size: .5em;
+    color: red;
+}
+
 .stat-title {
     margin: 5px;
 }
@@ -72,6 +80,7 @@ button.new-room .values {
 }
 
 .cards .card {
+    position: relative;
     line-height: 1em;
     display: inline-block;
     min-width: 1.7em;
