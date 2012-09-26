@@ -123,7 +123,14 @@ define([
                 var average = {
                     count: 0,
                     total: 0,
-                    value: function () { return this.total === 0 ? 0 : this.total / this.count; }
+                    infinity: false,
+                    value: function () {
+                        if (this.infinity) {
+                            return Infinity;
+                        }
+
+                        return this.total === 0 ? 0 : this.total / this.count;
+                    }
                 };
 
                 var totals = {
@@ -137,8 +144,12 @@ define([
                         totals[card.value.toString()] = total + 1;
 
                         if (_.isNumber(card.value)) {
-                            average.count += 1;
-                            average.total += card.value;
+                            if (card.value === Number.MAX_VALUE) {
+                                average.infinity = true;
+                            } else {
+                                average.count += 1;
+                                average.total += card.value;
+                            }
                         }
                     }
                 });
