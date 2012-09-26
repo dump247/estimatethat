@@ -61,14 +61,6 @@ button.new-room .values {
     filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f6f8f9', endColorstr='#f5f7f9',GradientType=0 ); /* IE6-9 */
 }
 
-.card .count {
-    position: absolute;
-    top: -.35em;
-    left: 0.2em;
-    font-size: .5em;
-    color: red;
-}
-
 .stat-title {
     margin: 5px;
 }
@@ -125,5 +117,23 @@ button.new-room .values {
     background: -ms-linear-gradient(top,  #fceabb 0%,#fccd4d 50%,#f8b500 51%,#fbdf93 100%); /* IE10+ */
     background: linear-gradient(to bottom,  #fceabb 0%,#fccd4d 50%,#f8b500 51%,#fbdf93 100%); /* W3C */
     filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#fceabb', endColorstr='#fbdf93',GradientType=0 ); /* IE6-9 */
+}
+
+.card .count {
+    position: absolute;
+    top: 0;
+    left: 0;
+    font-size: .5em;
+    color: red;
+    background-color: #FCC;
+    padding-right: 4px;
+
+    -moz-border-top-left-radius: 0.6em;
+    -webkit-border-top-left-radius: 0.6em;
+    -khtml-border-top-left-radius: 0.6em;
+    border-top-left-radius: 0.6em;
+    padding-left: 4px;
+
+    line-height: 1em;
 }
 
