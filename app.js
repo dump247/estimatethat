@@ -214,13 +214,13 @@ function generateSafeId (len, callback) {
     });
 }
 
-if (app.get('env') === 'production') {
-    // TODO assetsUrl
-    app.set('appRoot', '/');
+//if (app.get('env') === 'production') {
+    //// TODO assetsUrl
+    //app.set('appRoot', '/');
 
-    app.get('/', index);
-    app.get('/:room_id', index);
-} else {
+    //app.get('/', index);
+    //app.get('/:room_id', index);
+//} else {
     app.set('assetsUrl', '/assets');
     app.set('appRoot', '/app/');
 
@@ -229,7 +229,7 @@ if (app.get('env') === 'production') {
     app.get('/app/:room_id', index);
     app.get('/app', redirect('/app/'));
     app.use('/assets', express['static'](__dirname + '/assets'));
-}
+//}
 
 app.api = {
     root: app.get('appRoot') + 'api',
