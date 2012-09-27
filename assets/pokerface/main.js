@@ -15,26 +15,6 @@ require.config({
                 if (! window.jQuery) {
                     window.jQuery = window.$;
                     window.jQuery.support = {};
-                    //var oldData = window.jQuery.fn.data;
-                    //window.jQuery.fn.data = function (name, value) {
-                        //if (typeof name === 'undefined') {
-                            //var data = {};
-                            //var attributes = this[0].attributes;
-
-                            //for (var i = 0; i < attributes.length; i += 1) {
-                                //var attr = attributes[i];
-                                //var attrName = attr.nodeName;
-
-                                //if (attrName.substr(0, 5) === 'data-') {
-                                    //data[attrName.substr(5)] = attr.nodeValue;
-                                //}
-                            //}
-
-                            //return data;
-                        //}
-
-                        //return oldData.apply(this, arguments);
-                    //};
 
                     var oldEvent = window.jQuery.Event;
 
