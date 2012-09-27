@@ -143,3 +143,12 @@ button.new-room .values {
     max-width: 940px;
 }
 
+#content > div.new-room-container {
+    margin-right: auto;
+    margin-left: auto;
+}
+
+#content > h1 {
+    text-align: center;
+}
+
