@@ -137,3 +137,9 @@ button.new-room .values {
     line-height: 1em;
 }
 
+#content {
+    margin-right: auto;
+    margin-left: auto;
+    max-width: 940px;
+}
+
