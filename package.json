@@ -1,7 +1,7 @@
 {
   "name": "poker-face",
   "description": "Scrum planning poker service",
-  "version": "0.0.1-4",
+  "version": "0.0.1-5",
   "engine": {
     "node": "0.8.X"
   },
