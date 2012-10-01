@@ -50,9 +50,9 @@ require.config({
 
 require([
     'require/domReady!',
-    'pokerface/app'
-], function (document, Pokerface) {
+    'estimateThat/app'
+], function (document, EstimateThat) {
     'use strict';
-    Pokerface.start(document);
+    EstimateThat.start(document);
 });
 

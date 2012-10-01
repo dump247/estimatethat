@@ -1,15 +1,15 @@
 !!! 5
 html
     head
-        title PokerFace: Planning Poker
+        title EstimateThat: Planning Poker
         script
             var require = {
                 baseUrl: '#{assetsUrl}',
                 config: {
-                    'pokerface/app': {
+                    'estimateThat/app': {
                         root: '#{appRoot}'
                     },
-                    'pokerface/service': {
+                    'estimateThat/service': {
                         url: '#{apiUrl}'
                     }
                 }
@@ -50,9 +50,9 @@ html
                 {{/if}}
             </div>
 
-        script(src=assetsUrl+'/require.js', data-main='pokerface/main')
+        script(src=assetsUrl+'/require.js', data-main='estimateThat/main')
         link(rel='stylesheet', href=assetsUrl+'/bootstrap/bootstrap.css')
-        link(rel='stylesheet', href=assetsUrl+'/pokerface/app.css')
+        link(rel='stylesheet', href=assetsUrl+'/estimateThat/app.css')
     body
         div(id="content")
         div(class="modal hide fade", id="name-modal")

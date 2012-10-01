@@ -7,11 +7,11 @@ define([
     'zepto',
     'handlebars',
 
-    'pokerface/service',
+    'estimateThat/service',
 
     // No module
     'bootstrap'
-], function (module, _, Backbone, $, Handlebars, Pokerface) {
+], function (module, _, Backbone, $, Handlebars, EstimateThat) {
     'use strict';
 
     var appRoot = module.config().root;
@@ -37,13 +37,13 @@ define([
         },
 
         newRoom: function (evt) {
-            Pokerface.create(evt.currentTarget.id, function (err, room) {
+            EstimateThat.create(evt.currentTarget.id, function (err, room) {
                 if (err) {
                     console.error(err.message, err);
                     return;
                 }
 
-                PokerfaceApp.openRoom(room);
+                EstimateThatApp.openRoom(room);
             });
         }
     });
@@ -170,14 +170,14 @@ define([
         }
     });
 
-    var PokerfaceRouter = Backbone.Router.extend({
+    var EstimateThatRouter = Backbone.Router.extend({
         routes: {
             '':           'index',
             ':room_id':   'room'
         },
 
         index: function () {
-            Pokerface.roomTypes(function (err, rooms) {
+            EstimateThat.roomTypes(function (err, rooms) {
                 if (err) {
                     console.error(err);
                     return;
@@ -191,11 +191,11 @@ define([
         },
 
         room: function (room_id) {
-            PokerfaceApp.openRoom(room_id);
+            EstimateThatApp.openRoom(room_id);
         }
     });
 
-    var PokerfaceApp = {
+    var EstimateThatApp = {
         running: false,
         router: null,
         room: null,
@@ -252,7 +252,7 @@ define([
 
             if (this.running) {
                 if (_.isString(room)) {
-                    Pokerface.get(room, function (err, room) {
+                    EstimateThat.get(room, function (err, room) {
                         if (err) {
                             console.error(err.message, err);
                             return;
@@ -271,7 +271,7 @@ define([
         start: function () {
             if (! this.running) {
                 this.running = true;
-                this.router = new PokerfaceRouter();
+                this.router = new EstimateThatRouter();
 
                 Backbone.history.start({
                     pushState: true,
@@ -301,6 +301,6 @@ define([
         }
     };
 
-    return PokerfaceApp;
+    return EstimateThatApp;
 });
 
