@@ -11,20 +11,24 @@ require.config({
         },
 
         'zepto': {
-            exports: function () {
+            exports: '$',
+            init: function () {
+                // Some patching to get bootstrap working
                 if (! window.jQuery) {
                     window.jQuery = window.$;
-                    window.jQuery.support = {};
+
+                    if (! window.jQuery.support) {
+                        window.jQuery.support = {};
+                    }
 
                     var oldEvent = window.jQuery.Event;
 
                     window.jQuery.Event = function () {
                         var event = oldEvent.apply(this, arguments);
-                        event.isDefaultPrevented = function () { return false; };
+                        event.isDefaultPrevented = function () { return this.defaultPrevented; };
                         return event;
                     };
                 }
-                return window.$;
             }
         },
 
