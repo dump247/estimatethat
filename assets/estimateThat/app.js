@@ -32,8 +32,11 @@ define([
         },
 
         render: function () {
-            var template = Handlebars.compile($('#new-room-tmpl').html());
-            this.$el.html(template({ rooms: this.options.rooms }));
+            if (! this.template) {
+                this.template = Handlebars.compile($('#new-room-tmpl').html());
+            }
+
+            this.$el.html(this.template({ rooms: this.options.rooms }));
         },
 
         newRoom: function (evt) {
@@ -170,6 +173,8 @@ define([
         }
     });
 
+    var newRoomView;
+
     var EstimateThatRouter = Backbone.Router.extend({
         routes: {
             '':           'index',
@@ -177,17 +182,25 @@ define([
         },
 
         index: function () {
-            EstimateThat.roomTypes(function (err, rooms) {
-                if (err) {
-                    console.error(err);
-                    return;
-                }
+            if (newRoomView) {
+                newRoomView.render();
+            } else {
+                EstimateThat.roomTypes(function (err, rooms) {
+                    if (err) {
+                        console.error(err);
+                        return;
+                    }
 
-                new NewRoomView({
-                    el: '#content',
-                    rooms: rooms
-                }).render();
-            });
+                    if (! newRoomView) {
+                        newRoomView = new NewRoomView({
+                            el: '#content',
+                            rooms: rooms
+                        });
+
+                        newRoomView.render();
+                    }
+                });
+            }
         },
 
         room: function (room_id) {
@@ -220,16 +233,12 @@ define([
 
             this.room = room;
 
-            if (this.roomView) {
-                this.roomView.change(this.room);
-            } else {
-                this.roomView = new RoomView({
-                    el: '#content',
-                    room: room
-                });
+            this.roomView = new RoomView({
+                el: '#content',
+                room: room
+            });
 
-                this.roomView.render();
-            }
+            this.roomView.render();
 
             if (oldRoom) {
                 oldRoom.leave();
