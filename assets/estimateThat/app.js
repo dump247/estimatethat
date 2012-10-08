@@ -8,50 +8,46 @@ define([
     'handlebars',
 
     'estimateThat/service',
+    'estimateThat/view',
 
     // No module
     'bootstrap'
-], function (module, _, Backbone, $, Handlebars, EstimateThat) {
+], function (module, _, Backbone, $, Handlebars, EstimateThat, EstimateThatView) {
     'use strict';
 
     var appRoot = module.config().root;
 
-    Handlebars.registerHelper('join', function (arr, separator, options) {
-        if (options.inverse && !arr.length) {
-            return options.inverse(this);
-        }
+    var NewRoomView = EstimateThatView.extend({
+        template: '#new-room-tmpl',
 
-        return arr.map(function (item) {
-            return options.fn(item);
-        }).join(separator);
-    });
-
-    var NewRoomView = Backbone.View.extend({
         events: {
-            'click button.new-room': 'newRoom'
-        },
+            'click button.new-room': function (evt) {
+                EstimateThat.create(evt.currentTarget.id, function (err, room) {
+                    if (err) {
+                        console.error(err.message, err);
+                        return;
+                    }
 
-        render: function () {
-            if (! this.template) {
-                this.template = Handlebars.compile($('#new-room-tmpl').html());
+                    EstimateThatApp.openRoom(room);
+                });
             }
-
-            this.$el.html(this.template({ rooms: this.options.rooms }));
-        },
-
-        newRoom: function (evt) {
-            EstimateThat.create(evt.currentTarget.id, function (err, room) {
-                if (err) {
-                    console.error(err.message, err);
-                    return;
-                }
-
-                EstimateThatApp.openRoom(room);
-            });
         }
     });
 
-    var RoomView = Backbone.View.extend({
+    var VoteView = EstimateThatView.extend({
+        template: '#vote-tmpl',
+
+        events: {
+            'click .cards .card': 'selectCard'
+        },
+
+        selectCard: function (evt) {
+        }
+    });
+
+    var RoomView = EstimateThatView.extend({
+        template: '#room-tmpl',
+
         events: {
             'click .cards .card': 'selectCard'
         },
@@ -86,11 +82,6 @@ define([
             options.room.on('user:select', function (user, card) {
                 updateUser(user, card);
             });
-        },
-
-        render: function () {
-            var template = Handlebars.compile($('#room-tmpl').html());
-            this.$el.html(template({ room: this.options.room }));
         },
 
         selectCard: function (evt) {
@@ -232,6 +223,10 @@ define([
             var oldRoom = this.room;
 
             this.room = room;
+
+            if (this.roomView) {
+                this.roomView.dispose();
+            }
 
             this.roomView = new RoomView({
                 el: '#content',
