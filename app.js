@@ -92,6 +92,7 @@ if (app.get('env') === 'production') {
     app.get('/', index);
     app.use(app.get('assetsUrl'), express['static'](__dirname + '/assets', { maxAge: oneYear }));
     app.get('/:room_id', index);
+    app.get('/:room_id/vote', index);
 } else {
     app.set('assetsUrl', '/assets');
     app.set('appRoot', '/app/');
@@ -99,6 +100,7 @@ if (app.get('env') === 'production') {
     app.get('/', redirect('/app/'));
     app.get('/app/', index);
     app.get('/app/:room_id', index);
+    app.get('/app/:room_id/vote', index);
     app.get('/app', redirect('/app/'));
     app.use('/assets', express['static'](__dirname + '/assets'));
 }

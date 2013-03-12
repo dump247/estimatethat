@@ -17,6 +17,8 @@ define([
             }
 
             this.$el.html(this._compiledTemplate(this.context || this.options));
+
+            return this;
         },
 
         dispose: function () {

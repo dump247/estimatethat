@@ -27,18 +27,39 @@ html
             </div>
 
         script(type='text/x-handlebars-template', id='room-tmpl').
-                <div id="header">
-                    <div id="users">
-                    </div>
-                    <div id="stats" style="display: none">
-                        <div id="stat-average" class="stat"><span class="stat-title">Average</span><span class="stat-value"></span></div>
-                    </div>
+            <button id="vote-button" class="btn">Vote</button>
+            <div id="header">
+                <div id="users">
                 </div>
-                <div class="cards">
-                {{#each room.type.cards}}
-                    <div data-value="{{value}}" data-label="{{label}}" class="card"><span class="count"></span>{{label}}</div>
-                {{/each}}
+                <div id="stats" style="display: none">
+                    <div id="stat-average" class="stat"><span class="stat-title">Average</span><span class="stat-value"></span></div>
                 </div>
+            </div>
+            <div class="cards">
+            {{#each room.type.cards}}
+                <div data-value="{{value}}" data-label="{{label}}" class="card"><span class="count"></span>{{label}}</div>
+            {{/each}}
+            </div>
+
+        script(type='text/x-handlebars-template', id='vote-tmpl').
+            <div class="cards">
+            {{#each room.type.cards}}
+                <div data-value="{{value}}" data-label="{{label}}" class="card">{{label}}</div>
+            {{/each}}
+            </div>
+
+        script(type='text/x-handlebars-template', id='edit-user-tmpl')
+            form(id="edit-user-form", class="form-horizontal modal-form")
+                div(class="modal-header")
+                    h3 Enter your name
+                div(class="modal-body")
+                    div(class="control-group")
+                        label(class="control-label", for="edit-user-name-input") Name
+                        div(class="controls")
+                            input(type="text", id="edit-user-name-input", placeholder="Name", name="name", value="{{user.name}}")
+                div(class="modal-footer")
+                    button(id="edit-user-cancel-btn", class="btn", aria-hidden="true") Cancel
+                    button(id="edit-user-accept-btn", type="submit", class="btn btn-primary", aria-hidden="true") Join
 
         script(type='text/x-handlebars-template', id='user-tmpl').
             <div id="user_{{user.id}}" class="user">

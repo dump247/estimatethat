@@ -1,4 +1,4 @@
-/*globals console location localStorage*/
+/*globals console location localStorage sessionStorage*/
 
 define([
     'module',
@@ -17,19 +17,77 @@ define([
 
     var appRoot = module.config().root;
 
+    var ModalView = EstimateThatView.extend({
+        className: 'modal hide fade',
+
+        _dialogEvents: _.extend({}, Backbone.Events),
+
+        initialize: function () {
+            var view = this;
+
+            this.$el.on('hidden', function () {
+                view.undelegateEvents();
+                view.remove();
+
+                var result = view._result || 'cancel';
+                view._result = null;
+                view._dialogEvents.trigger('closed', { result: result });
+            });
+        },
+
+        cancel: function () {
+            this.close('cancel');
+        },
+
+        close: function (result) {
+            this._result = result;
+            this.$el.modal('hide');
+        },
+
+        show: function () {
+            this.render();
+            $('body').append(this.el);
+            this.$el.modal('show');
+        },
+
+        on: function (event, callback, context) {
+            this._dialogEvents.on(event, callback, context || this);
+            return this;
+        },
+
+        one: function (event, callback, context) {
+            var handler = function () {
+                this._dialogEvents.off(event, handler);
+                callback.apply(context || this, arguments);
+            };
+
+            this._dialogEvents.on(event, handler, this);
+            return this;
+        }
+    });
+
+    var EditUserModal = ModalView.extend({
+        template: '#edit-user-tmpl',
+
+        events: {
+            'submit form': function () { return false; },
+
+            'click #edit-user-cancel-btn': 'cancel',
+
+            'click #edit-user-accept-btn': function () {
+                this.options.user = this.options.user || {};
+                this.options.user.name = $('#edit-user-name-input').val();
+                this.close('accept');
+            }
+        }
+    });
+
     var NewRoomView = EstimateThatView.extend({
         template: '#new-room-tmpl',
 
         events: {
             'click button.new-room': function (evt) {
-                EstimateThat.create(evt.currentTarget.id, function (err, room) {
-                    if (err) {
-                        console.error(err.message, err);
-                        return;
-                    }
-
-                    EstimateThatApp.openRoom(room);
-                });
+                EstimateThatApp.navigate.newRoom(evt.currentTarget.id);
             }
         }
     });
@@ -38,10 +96,8 @@ define([
         template: '#vote-tmpl',
 
         events: {
-            'click .cards .card': 'selectCard'
-        },
-
-        selectCard: function (evt) {
+            'click .cards .card': function (evt) {
+            }
         }
     });
 
@@ -49,7 +105,12 @@ define([
         template: '#room-tmpl',
 
         events: {
-            'click .cards .card': 'selectCard'
+            'click .cards .card': 'selectCard',
+            'click .vote-btn': 'vote'
+        },
+
+        vote: function () {
+            EstimateThatApp.navigate.roomVote(this.options.room.id);
         },
 
         initialize: function (options) {
@@ -164,38 +225,23 @@ define([
         }
     });
 
-    var newRoomView;
-
     var EstimateThatRouter = Backbone.Router.extend({
         routes: {
-            '':           'index',
-            ':room_id':   'room'
+            '':              'index',
+            ':room_id':      'room',
+            ':room_id/vote': 'vote'
         },
 
         index: function () {
-            if (newRoomView) {
-                newRoomView.render();
-            } else {
-                EstimateThat.roomTypes(function (err, rooms) {
-                    if (err) {
-                        console.error(err);
-                        return;
-                    }
+            EstimateThatApp.navigate.index();
+        },
 
-                    if (! newRoomView) {
-                        newRoomView = new NewRoomView({
-                            el: '#content',
-                            rooms: rooms
-                        });
-
-                        newRoomView.render();
-                    }
-                });
-            }
+        vote: function (room_id) {
+            EstimateThatApp.navigate.roomVote(room_id);
         },
 
         room: function (room_id) {
-            EstimateThatApp.openRoom(room_id);
+            EstimateThatApp.navigate.room(room_id);
         }
     });
 
@@ -204,6 +250,114 @@ define([
         router: null,
         room: null,
         roomView: null,
+
+        navigate: {
+            room: function (room_id) {
+                var app = EstimateThatApp;
+
+                app.router.navigate(room_id);
+
+                app._loadRoom(room_id, function (err, room) {
+                    if (err) {
+                        console.error(err);
+                        app.navigate.index();
+                        return;
+                    }
+
+                    app._renderContentView(RoomView, { room: room });
+                    app._switchRoom(room);
+                });
+            },
+
+            roomVote: function (room_id) {
+                var app = EstimateThatApp;
+
+                app.router.navigate(room_id + '/vote');
+
+                app._loadRoom(room_id, function (err, room) {
+                    if (err) {
+                        console.error(err);
+                        app.navigate.index();
+                        return;
+                    }
+
+                    app._renderContentView(VoteView, { room: room });
+                    app._switchRoom(room);
+
+                    app.login(function (err, user) {
+                        if (err) {
+                            app.navigate.room(room_id);
+                            return;
+                        }
+
+                        // TODO room.join
+                    });
+                });
+            },
+
+            newRoom: function (type) {
+                var app = EstimateThatApp;
+
+                EstimateThat.create(type, function (err, room) {
+                    if (err) {
+                        console.error(err);
+                        app.navigate.index();
+                        return;
+                    }
+
+                    app.router.navigate(room.id);
+                    app._renderContentView(RoomView, { room: room });
+                    app._switchRoom(room);
+                });
+            },
+
+            index: function () {
+                var app = EstimateThatApp;
+
+                EstimateThat.roomTypes(function (err, rooms) {
+                    if (err) {
+                        console.error(err);
+                        return;
+                    }
+
+                    app.router.navigate();
+                    app._renderContentView(NewRoomView, { rooms: rooms });
+                    app._switchRoom(null);
+                });
+            }
+        },
+
+        _loadRoom: function (room_id, callback) {
+            if (this.room && this.room.id === room_id) {
+                callback(null, this.room);
+            } else {
+                EstimateThat.get(room_id, callback);
+            }
+        },
+
+        login: function (callback) {
+            var user = {
+                name: localStorage.getItem('user.name'),
+                incognito: sessionStorage.getItem('user.incognito') === 'true'
+            };
+
+            if (user.name && ! user.incognito) {
+                callback(null, user);
+                return;
+            }
+
+            new EditUserModal({ user: user }).
+                one('closed', function (evt) {
+                    if (evt.result === 'accept') {
+                        localStorage.setItem('user.name', user.name);
+                        sessionStorage.removeItem('user.incognito');
+                        callback(null, user);
+                    } else {
+                        callback('User canceled');
+                    }
+                }).
+                show();
+        },
 
         currentUser: function (callback) {
             var user = localStorage.getItem('user');
@@ -219,57 +373,22 @@ define([
             }
         },
 
-        _renderRoom: function (room) {
-            var oldRoom = this.room;
-
-            this.room = room;
-
-            if (this.roomView) {
-                this.roomView.dispose();
+        _renderContentView: function (ViewType, options) {
+            if (this._contentView) {
+                this._contentView.dispose();
+                this._contentView = null;
             }
 
-            this.roomView = new RoomView({
-                el: '#content',
-                room: room
-            });
-
-            this.roomView.render();
-
-            if (oldRoom) {
-                oldRoom.leave();
-            }
-
-            this.currentUser(function (user) {
-                if (user) {
-                    room.join(user, function (err) {
-                        if (err) {
-                            console.error('Error joining room ' + room.id, err);
-                            return;
-                        }
-                    });
-                }
-            });
+            this._contentView = new ViewType(_.extend({ el: '#content' }, options));
+            this._contentView.render();
         },
 
-        openRoom: function (room) {
-            var app = this;
-
-            if (this.running) {
-                if (_.isString(room)) {
-                    EstimateThat.get(room, function (err, room) {
-                        if (err) {
-                            console.error(err.message, err);
-                            return;
-                        }
-
-                        app.router.navigate(room.id);
-                        app._renderRoom(room);
-                    });
-                } else {
-                    app.router.navigate(room.id);
-                    app._renderRoom(room);
-                }
+        _switchRoom: function (newRoom) {
+            if (this.room && (! newRoom || this.room.id !== newRoom.id)) {
+                this.room.leave();
             }
+
+            this.room = newRoom;
         },
 
         start: function () {
